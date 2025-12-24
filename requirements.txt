@@ -8,3 +8,5 @@ faiss-cpu
 unstructured[pdf]
 langchain_huggingface
 torch
+vllm
+pip install huggingface_hub
