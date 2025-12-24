@@ -1,15 +1,17 @@
 from openai import OpenAI
+import os
 
-# Thay '123.456.78.9' bằng địa chỉ IP thật của server H200 của bạn
-IP_H200 = "123.456.78.9" 
+# Lệnh lấy IP: curl ifconfig.me
+IP_H200 = os.getenv("IP_H200", "1.2.3.4")
+PORT = os.getenv("PORT", "8500")
 
 client = OpenAI(
-    base_url=f"http://{IP_H200}:8000/v1",
-    api_key="secret-agri-token"
+    base_url=f"http://{IP_H200}:{PORT}/v1",
+    api_key= os.getenv("API_KEY_NLP", "token")
 )
 
 def test_connection():
-    print("--- Đang kết nối tới H200... ---")
+    print("--- Đang kết nối ---")
     try:
         response = client.chat.completions.create(
             model="meta-llama/Meta-Llama-3-8B-Instruct",
@@ -24,7 +26,6 @@ def test_connection():
         print(f"🤖 AI trả lời: {response.choices[0].message.content}")
     except Exception as e:
         print(f"\n❌ Lỗi kết nối: {e}")
-        print("Mẹo: Hãy kiểm tra xem IP có đúng không và Port 8000 đã được mở (Firewall) chưa.")
 
 if __name__ == "__main__":
     test_connection()

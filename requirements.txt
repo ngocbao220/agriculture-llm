@@ -9,4 +9,5 @@ unstructured[pdf]
 langchain_huggingface
 torch
 vllm
-pip install huggingface_hub
+huggingface_hub
+openai
