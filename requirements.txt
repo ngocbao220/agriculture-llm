@@ -1,0 +1,10 @@
+ddgs
+requests
+unstructured 
+langchain 
+langchain-community
+sentence-transformers 
+faiss-cpu 
+"unstructured[pdf]"
+langchain_huggingface
+torch
