@@ -7,7 +7,14 @@ sentence-transformers
 faiss-cpu 
 unstructured[pdf]
 langchain_huggingface
-torch
-vllm
+# torch
+# vllm
 huggingface_hub
 openai
+python-dotenv
+
+
+    print(f"🔍 Đang tìm thông tin về: {crop_name}...")
+    crop_keyword = crop_name.replace(" ", "+").lower()
+    print(f"🔗 Từ khóa tìm kiếm: {crop_keyword}")
+    search_url = f"https://nongnghiepmoitruong.vn/{crop_keyword}-search/from-to-category-20/"
