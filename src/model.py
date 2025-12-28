@@ -1,72 +1,44 @@
-import sys
+import requests
+import json
 import os
-from openai import OpenAI
-from dotenv import load_dotenv
 
-load_dotenv()  # tự động tìm file .env
+API_URL = "http://0.0.0.0:9000/ask_agri"
 
-# --- THÔNG SỐ KẾT NỐI---
-FPT_ENDPOINT = os.getenv("FPT_ENDPOINT")
-FPT_PORT = os.getenv("FPT_PORT")
-API_KEY = os.getenv("API_KEY")
-MODEL_NAME = os.getenv("MODEL_NAME")
-
-# Khởi tạo OpenAI Client
-client = OpenAI(
-    base_url=f"http://{FPT_ENDPOINT}:{FPT_PORT}/v1",
-    api_key=API_KEY,
-    timeout=300.0
-)
-
-def start_chat():
-    # Cấu hình "bộ não" cho AI chuyên về nông nghiệp Việt Nam
-    messages = [
-        {
-            "role": "system", 
-            "content": (
-                "Bạn là chuyên gia tư vấn nông nghiệp cao cấp tại Việt Nam. "
-                "Bạn am hiểu về kỹ thuật trồng nông nghiệp, chẩn đoán sâu bệnh và biện pháp phòng trừ."
-                "Hãy trả lời bằng tiếng Việt, đưa ra các biện pháp canh tác hữu cơ và thuốc bảo vệ thực vật đúng danh mục."
-            )
-        }
-    ]
-
-    print(f"📍 Endpoint: {FPT_ENDPOINT}:{FPT_PORT}")
-    print("--- Bạn có thể bắt đầu hỏi về nông nghiệp (Gõ 'exit' để thoát) ---")
+def chat_with_h200():
+    print("--- 🌾 Hệ thống Chẩn đoán Nông nghiệp (UET AI Lab) ---")
+    print("--- Gõ 'exit' để thoát ---")
 
     while True:
+        user_input = input("\n👤 Bạn: ").strip()
+        if user_input.lower() in ["exit", "quit", "thoát"]: break
+        if not user_input: continue
+
         try:
-            user_input = input("\n👤 Bạn: ").strip()
-            if user_input.lower() in ["exit", "quit", "thoát"]:
-                break
-            if not user_input:
-                continue
+            print("🤖 AI đang suy nghĩ...", end="\r")
+            
+            response = requests.post(API_URL, params={"question": user_input}, timeout=300)
 
-            messages.append({"role": "user", "content": user_input})
-            print("🤖 AI: ", end="", flush=True)
+            if response.status_code == 200:
+                data = response.json()
+                answer = data.get("answer", "")
+                sources = data.get("sources", [])
 
-            # Gọi API streaming giúp chữ chảy ra mượt mà
-            stream = client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=messages,
-                stream=True,
-                temperature=0.3 # Giảm độ sáng tạo để tăng tính chính xác kỹ thuật
-            )
-
-            full_res = ""
-            for chunk in stream:
-                content = chunk.choices[0].delta.content
-                if content:
-                    print(content, end="", flush=True)
-                    full_res += content
-
-            # Lưu lại câu trả lời vào lịch sử để AI nhớ ngữ cảnh câu hỏi sau
-            messages.append({"role": "assistant", "content": full_res})
-            print() 
-
+                print(f"🤖 AI: {answer}")
+                
+                # HIỂN THỊ NGUỒN: Sửa key từ 'url' thành 'source'
+                if sources:
+                    links = set() # Dùng set để tránh trùng lặp link
+                    for src in sources:
+                        link = src.get('source') # Lấy key 'source' đã lưu trong FAISS
+                        if link: links.add(link)
+                    
+                    if links:
+                        print("\n📚 Nguồn tham khảo:")
+                        for l in links: print(f"   - {l}")
+            else:
+                print(f"❌ Lỗi Server: {response.status_code}")
         except Exception as e:
-            print(f"\n❌ Lỗi: {e}")
-            print("👉 Kiểm tra xem trên Web Console của FPT bạn đã chạy lệnh khởi động vLLM chưa.")
+            print(f"❌ Lỗi kết nối: {e}")
 
 if __name__ == "__main__":
-    start_chat()
+    chat_with_h200()

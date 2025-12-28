@@ -13,50 +13,43 @@ from dotenv import load_dotenv
 load_dotenv()  # tự động tìm file .env
 
 BASE_URL = f"http://{os.getenv('FPT_ENDPOINT')}:{os.getenv('FPT_PORT')}/v1"
-API_KEY = os.getenv("API_KEY")
+API_URL = f"http://{BASE_URL}:9000/ask_agri"
 
-# 1. Khởi tạo LLM trên H200
-llm = ChatOpenAI(base_url=BASE_URL, api_key=API_KEY, model=LLM_MODEL, temperature=0.2)
-embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
+def chat_with_h200():
+    print("--- 🌾 Hệ thống Chẩn đoán Nông nghiệp (UET AI Lab) ---")
+    print("--- Gõ 'exit' để thoát ---")
 
-def get_rag_chain(crop_type):
-    path = f"data/vector_db/{crop_type}"
-    if not os.path.exists(path): return None
-    
-    vectorstore = FAISS.load_local(path, embeddings, allow_dangerous_deserialization=True)
-    
-    prompt = ChatPromptTemplate.from_template("""
-    Bạn là chuyên gia tư vấn nông nghiệp số của UET. 
-    Dựa vào các bài báo và tài liệu sau:
-    {context}
-    
-    Hãy trả lời câu hỏi: {input}
-    (Nếu có thông tin, hãy ghi rõ: "Theo nguồn Nông nghiệp Môi trường...")
-    """)
-    
-    doc_chain = create_stuff_documents_chain(llm, prompt)
-    return create_retrieval_chain(vectorstore.as_retriever(), doc_chain)
-
-def start_chatbot():
-    print("--- 🌾 Hệ thống RAG Nông nghiệp Việt Nam (H200 Powered) ---")
-    current_crop = "sầu riêng" # Mặc định
-    
     while True:
-        user_input = input(f"\n👤 [{current_crop}] Bạn: ").strip()
-        if user_input.lower() in ['exit', 'quit']: break
-        
-        # Logic chuyển đổi loại cây thông minh
-        if "lúa" in user_input.lower(): current_crop = "lúa"
-        elif "cà phê" in user_input.lower(): current_crop = "cà phê"
-        
-        chain = get_rag_chain(current_crop)
-        if not chain:
-            print("⚠️ Chưa có dữ liệu cho loại cây này. Hãy chạy scraper trước!")
-            continue
+        user_input = input("\n👤 Bạn: ").strip()
+        if user_input.lower() in ["exit", "quit", "thoát"]: break
+        if not user_input: continue
+
+        try:
+            print("🤖 AI đang suy nghĩ...", end="\r")
             
-        print("🤖 AI: ", end="", flush=True)
-        response = chain.invoke({"input": user_input})
-        print(response["answer"])
+            response = requests.post(API_URL, params={"question": user_input}, timeout=300)
+
+            if response.status_code == 200:
+                data = response.json()
+                answer = data.get("answer", "")
+                sources = data.get("sources", [])
+
+                print(f"🤖 AI: {answer}")
+                
+                # HIỂN THỊ NGUỒN: Sửa key từ 'url' thành 'source'
+                if sources:
+                    links = set() # Dùng set để tránh trùng lặp link
+                    for src in sources:
+                        link = src.get('source') # Lấy key 'source' đã lưu trong FAISS
+                        if link: links.add(link)
+                    
+                    if links:
+                        print("\n📚 Nguồn tham khảo:")
+                        for l in links: print(f"   - {l}")
+            else:
+                print(f"❌ Lỗi Server: {response.status_code}")
+        except Exception as e:
+            print(f"❌ Lỗi kết nối: {e}")
 
 if __name__ == "__main__":
-    start_chatbot()
+    chat_with_h200()
