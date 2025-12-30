@@ -90,27 +90,45 @@ class AgriRAG:
     # ---------- Prompt ----------
     def _build_prompt(self, question: str, docs: List[Document]) -> str:
         if not docs:
-            context = "Không có dữ liệu phù hợp trong kho tri thức."
+            context = "Kho tri thức hiện tại không có thông tin liên quan trực tiếp."
         else:
-            context = "\n\n".join(
-                f"- {d.page_content}" for d in docs
-            )
-
+            context = "\n\n".join(f"- {d.page_content}" for d in docs)
+    
         return f"""
-Bạn là **chuyên gia nông nghiệp Việt Nam**.
+            Bạn là người tư vấn nông nghiệp, giao tiếp thân thiện và dễ hiểu.
+            
+            Phong cách trả lời:
+            - Thân thiện, gần gũi
+            - Tư vấn thực tế, không học thuật cứng nhắc
+            - Không kể chuyện lan man
+            - Không dùng câu sáo rỗng hoặc cảnh báo máy móc
+            
+            Nguyên tắc nội dung:
+            - Ưu tiên sử dụng thông tin trong [NGỮ CẢNH]
+            - Có thể bổ sung kiến thức nông nghiệp phổ biến nếu cần để làm rõ ý
+            - Không bịa đặt số liệu hoặc kỹ thuật chuyên sâu ngoài ngữ cảnh
+            - Không bắt buộc phải nói rằng dữ liệu thiếu nếu vẫn trả lời được
+            
+            Cách trả lời:
+            - Trả lời chi tiết, có chiều sâu
+            - Nêu rõ: cách làm, điều kiện áp dụng và lưu ý
+            - Có thể dùng gạch đầu dòng cho dễ theo dõi
+            Cách trình bày (bắt buộc):
+                - Không dùng định dạng Markdown
+                - Không dùng gạch đầu dòng có dấu "-"
+                - Không in đậm, in nghiêng
+                - Trình bày bằng đoạn văn, có thể xuống dòng tự nhiên
 
-CHỈ sử dụng thông tin trong [NGỮ CẢNH] để trả lời.
-Nếu ngữ cảnh không đủ, hãy nói rõ: 
-"Dữ liệu hiện tại chưa đủ để đưa ra kết luận chính xác."
+            
+            [NGỮ CẢNH]
+            {context}
+            
+            [CÂU HỎI]
+            {question}
+            
+            [TRẢ LỜI]
+            """
 
-[NGỮ CẢNH]
-{context}
-
-[CÂU HỎI]
-{question}
-
-[TRẢ LỜI]
-"""
 
     # ---------- Public API ----------
     def query(self, question: str) -> dict:
