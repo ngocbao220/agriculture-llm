@@ -7,8 +7,8 @@ sentence-transformers
 faiss-cpu 
 unstructured[pdf]
 langchain_huggingface
-# torch
-# vllm
+torch
+vllm
 huggingface_hub
 openai
 gradio
