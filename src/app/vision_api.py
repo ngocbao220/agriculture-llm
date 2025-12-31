@@ -20,14 +20,16 @@ async def analyze_image(file: UploadFile = File(...)):
         base64_img = base64.b64encode(buffered.getvalue()).decode('utf-8')
         
         # Gọi vLLM trích xuất triệu chứng
+        # Gọi vLLM trích xuất triệu chứng với Prompt đã tối ưu
         response = client_vl.chat.completions.create(
             model="Qwen/Qwen2.5-VL-7B-Instruct",
             messages = [
                 {
                     "role": "system",
                     "content": (
-                        "Bạn là chuyên gia nông nghiệp Việt Nam, có kinh nghiệm chẩn đoán bệnh cây trồng "
-                        "dựa trên hình ảnh thực tế ngoài môi trường."
+                        "Bạn là chuyên gia thị giác máy tính trong nông nghiệp. "
+                        "Nhiệm vụ của bạn là quan sát ảnh và cung cấp dữ liệu mô tả khách quan, "
+                        "làm đầu vào cho hệ thống chẩn đoán chuyên sâu."
                     )
                 },
                 {
@@ -36,18 +38,14 @@ async def analyze_image(file: UploadFile = File(...)):
                         {
                             "type": "text",
                             "text": (
-                                "Quan sát kỹ hình ảnh cây trồng được cung cấp.\n"
-                                "Chỉ tập trung vào các loại cây phổ biến ở Việt Nam gồm: "
-                                "Lúa, Ngô, Khoai tây, Dưa hấu, Cà chua, Sầu riêng, Thanh long.\n\n"
-                
-                                "Yêu cầu:\n"
-                                "1. Xác định loại cây trồng (nếu có thể).\n"
-                                "2. Mô tả chi tiết các triệu chứng bệnh *nhìn thấy trực tiếp trong ảnh* "
-                                "(màu sắc lá, đốm bệnh, héo, thối, biến dạng, vết cháy...).\n"
-                
-                                "Không suy đoán vượt quá những gì quan sát được từ ảnh. "
-                                "Chỉ dừng lại ở mức chỉ ra các đặc điểm quan trọng"
-                                "Không đưa ra hướng dẫn điều trị."
+                                "Phân tích ảnh cây trồng theo các bước sau:\n"
+                                "Bước 1: Liệt kê các triệu chứng quan sát được trên lá, thân, quả (vết đốm, màu sắc, biến dạng).\n"
+                                "Bước 2: Tổng hợp thành một đoạn mô tả ngắn gọn.\n\n"
+                                "Yêu cầu nghiêm ngặt:\n"
+                                "- Trả lời bằng tiếng Việt.\n"
+                                "- Cung cấp tên cây rõ ràng ở ngay đầu câu.\n"
+                                "- Chỉ mô tả những gì thấy trong ảnh, không chẩn đoán tên bệnh, không tư vấn.\n"
+                                "- Ngôn ngữ ngắn gọn, tập trung vào tính chất vật lý (ví dụ: đốm vàng viền nâu, cháy lá từ chóp, héo rũ)."
                             )
                         },
                         {
@@ -59,7 +57,8 @@ async def analyze_image(file: UploadFile = File(...)):
                     ]
                 }
             ],
-            max_tokens=300
+            max_tokens=250,
+            temperature=0.1 # Để kết quả mang tính nhất quán, khách quan
         )
         return {"symptoms": response.choices[0].message.content}
     except Exception as e:
