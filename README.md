@@ -211,14 +211,6 @@ python src/scrappers/scrap_sfarm.py
 python src/processing/indexer.py
 ```
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 👥 Authors
-
-- Ngọc Bảo - [GitHub](https://github.com/your-username)
-
 ## 🙏 Acknowledgments
 
 - [Qwen2.5](https://huggingface.co/Qwen) for the base LLM
