@@ -79,12 +79,6 @@ Hệ thống hỗ trợ **8 loại cây trồng** chính: Sầu riêng, Lúa, C�
 
 ## 🚀 Cài đặt
 
-### Yêu cầu hệ thống
-
-- Python 3.10+
-- CUDA GPU (khuyến nghị cho embedding và LLM)
-- RAM: 16GB+ (32GB+ nếu chạy LLM local)
-
 ### Bước 1: Clone repository
 
 ```bash
@@ -115,7 +109,7 @@ vllm serve Qwen/Qwen2.5-32B-Instruct \
   --host 0.0.0.0 \
   --port 8500 \
   --enable-lora \
-  --lora-modules agri-lora=/path/to/lora
+  --lora-modules agri-lora=/path/to/lora (pretrained LoRA weights)
 ```
 
 ## 💻 Sử dụng
@@ -154,32 +148,6 @@ with open("image.jpg", "rb") as f:
         files=files
     )
 print(response.json()["symptoms"])
-```
-
-### 3. Python Module
-
-```python
-from src.app.rag import AgriRAG
-
-rag = AgriRAG()
-answer = rag.ask("Khi nào nên bón phân cho cây cà phê?")
-print(answer)
-```
-
-## ⚙️ Cấu hình
-
-Chỉnh sửa `config.py`:
-
-```python
-# Model Configuration
-LLM_MODEL = "Qwen/Qwen2.5-32B-Instruct"
-EMBED_MODEL = "BAAI/bge-m3"
-
-# Database Path
-DB_PATH = "data/vector_db/agri_vector"
-
-# Supported Crops
-CROPS = ["sầu riêng", "lúa", "cà phê", "thanh long", "dưa hấu", "ngô", "khoai tây", "cà chua"]
 ```
 
 ## 📁 Cấu trúc dự án
@@ -243,26 +211,9 @@ python src/scrappers/scrap_sfarm.py
 python src/processing/indexer.py
 ```
 
-### Test RAG system
-
-```bash
-python -c "from src.app.rag import AgriRAG; rag = AgriRAG(); print(rag.ask('Test question'))"
-```
-
-## 📊 Performance
-
-- **Vector DB Size**: ~10K+ chunks
-- **Retrieval Speed**: < 100ms
-- **LLM Inference**: 20-30 tokens/s (vLLM với GPU)
-- **Supported Languages**: Tiếng Việt
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📝 License
-
-This project is licensed under the MIT License.
 
 ## 👥 Authors
 
@@ -275,5 +226,3 @@ This project is licensed under the MIT License.
 - Vietnamese agriculture communities for domain knowledge
 
 ---
-
-**Made with ❤️ for Vietnamese farmers**
