@@ -6,8 +6,8 @@ from datetime import datetime
 # ==================== CONFIG ====================
 st.set_page_config(page_title="AgriMind AI", layout="wide")
 
-LOGIC_API_URL = "http://tcp-endpoint.serverless.fptcloud.jp:33197/ask"
-VISION_API_URL = "http://tcp-endpoint.serverless.fptcloud.jp:36432/analyze"
+LOGIC_API_URL = "http://tcp-endpoint.serverless.fptcloud.jp:33778/ask"
+VISION_API_URL = "http://tcp-endpoint.serverless.fptcloud.jp:35239/analyze"
 
 USER_AVATAR = "https://www.svgrepo.com/show/401101/angry-face.svg"
 BOT_AVATAR = "https://www.svgrepo.com/show/401095/alien-monster.svg"

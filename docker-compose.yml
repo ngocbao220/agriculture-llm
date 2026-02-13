@@ -1,6 +1,0 @@
-services:
-  data:
-    build: .
-    volumes:
-      - .:/app
-    command: python src/main.py
