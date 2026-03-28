@@ -8,7 +8,7 @@ from datetime import datetime
 # =========================
 # GOOGLE SEARCH CONFIG
 # =========================
-GOOGLE_API_KEY = "AIzaSyAtdf7WO1bga9hjqLr16UHWOwXy-w0FFuw"
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 CX_ID = "f77c64a16502f4fe8"
 
 HEADERS = {
